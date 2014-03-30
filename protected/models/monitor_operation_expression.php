@@ -9,7 +9,7 @@
  * @property string $left_or_right
  * @property string $expression
  */
-class monitor_operation_expression extends CActiveRecord
+class monitor_operation_expression_disuse extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.

@@ -21,7 +21,7 @@ class Method {
 	 * @example $connection-prev(connection,{ip,port},1)
 	 * @return mixed
 	 */
-	public function prev($column,$group,$cycle=1){
+	public function prev($column,$cycle=1){
 		if( isset( $this->_rule_data[ $cycle ] [ $this->_key ] [ $column ]) )
 			return $this->_rule_data[ $cycle ] [ $this->_key ] [ $column ];
 		return 0;
@@ -35,7 +35,29 @@ class Method {
 		return count($this->_rule_data[0]);
 	}
 	
-	public function prevHour($column,$group,$hour=1){
+	
+	public function dateFormatDay($time=null){
+		return $this->dateFormat('Ymd',$time);
+	}
+	
+	public function dateFormatMonth($time=null){
+		return $this->dateFormat('Ym',$time);
+	}
+	
+	public function dateFormatYear($time=null){
+		return $this->dateFormat('Y',$time);
+	}
+	
+	public function dateFormat($str,$time){
+		$stamp = time();
+		if( $time !== null ){
+			if( is_int($time))  $stamp = $time;
+			else if( is_string($time) ) $stamp = strtotime($time);
+		}
+		return date($str,$stamp);
+	}
+	
+	public function prevHour($column,$hour=1){
 		$time = $GLOBALS['CURRENT_TIME']  - 3600*$hour;
 		$cycle = $this->_rule_data->calcCycleIndex($time);
 		if( isset( $this->_rule_data[ $cycle ] [ $this->_key ] [ $column ]) )
@@ -89,13 +111,26 @@ class Method {
 	 * @example join(ip,{ip_id,id},$ip_id,ip)
 	 * @return mixed|NULL
 	 */
-	public function join($table,$field_map,$val,$fields){
+	public function join($origin_table,$target_table_map,$val,$fields){
 		
-		$join = explode('.', $join_str);
 		$command=$this->_rule_data->createCommand();
-		$reader = $command->select($table.'.'.$fields)->from( $this->_rule_data->getTable() )
-		 -> join($table,$this->_rule_data->getTable().'.'.$field_map[0].'='.$table.'.'.$field_map[1])
-		-> where($this->_rule_data->getTable().'.'.$field_map[0].'=\''.$val.'\'')->queryRow(0);
+		if( is_array($origin_table) && count($origin_table) ==2){
+			$table = $origin_table[0];
+			$column= $origin_table[1];
+		}else if( is_array($origin_table) ){
+			$table = $this->_rule_data->getTable();
+			$column= $origin_table[0];
+		}else{
+			$table = $this->_rule_data->getTable();
+			$column= $origin_table;
+		}
+		
+		$target_table = $target_table_map[0];
+		$target_column = $target_table_map[1];
+		
+		$reader = $command->select($target_table.'.'.$fields)->from( $table )
+		 -> join($target_table,$table.'.'.$column.'='.$target_table.'.'.$target_column)
+		-> where($table.'.'.$column.'=\''.$val.'\'')->queryRow(0);
 		
 		if($reader)
 			return current($reader);

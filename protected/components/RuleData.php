@@ -31,6 +31,14 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	
 	protected $_join;
 	
+	protected  $_sql;
+	
+	protected  $_where;
+	
+	protected  $_table_alias;
+	
+	protected $_queryGroup;
+	
 	public $dsn;
 	public $username;
 	public $password;
@@ -75,7 +83,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 		$this->log_config = $log_config;
 		$this->schema =  $this->getSchema()->getTable($log_config->table_name);
 		
-		$this->_table = $log_config->table_name;
+		$this->_table = $this->parseCondition( $log_config->table_name );
 		
 		$this->_log_time_column = $log_config->time_column;
 		
@@ -98,9 +106,86 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	 */
 	public function setRule($rule){
 		$this->rule = $rule;
-		$this->_filed = empty($rule->filter_fields) ? '*' :  $rule->filter_fields;
-		$this->_condition= empty($rule->filter_conditions) ? '' :  $rule->filter_conditions;
-		$this->_join  = empty($rule->rule_join) ? array() : $rule->rule_join;
+		$this->analyseSql($rule->select_sql);
+// 		$this->_filed = empty($rule->filter_fields) ? '*' :  $rule->filter_fields;
+// 		$this->_condition= empty($rule->filter_conditions) ? '' :  $rule->filter_conditions;
+// 		$this->_join  = empty($rule->rule_join) ? array() : $rule->rule_join;
+	}
+
+	public function analyseSql($sql){
+		preg_match('/TABLE[ ]+(?:as |AS )?[ ]?([a-z0-9A-Z]+)/', $sql,$match);
+		if( !empty($match) && isset($match[1]))
+			$alias_name = $match[1];
+		else 
+			$alias_name = null;
+		
+// 		if( in_array($alias_name,array('WHERE','Where','where','GROUP','Group','group','ORDER','Order','order','LIMIT','Limit','limit')) )
+// 			$alias_name = null;
+		if( strcasecmp($alias_name,'where') ===0 ||
+			 strcasecmp($alias_name,'group') ===0 ||
+			 strcasecmp($alias_name,'order') ===0 ||
+			 strcasecmp($alias_name,'limit') ===0 ||
+			 strcasecmp($alias_name,'querygroup') ===0
+			)
+		$alias_name = null;
+		
+		
+		
+$sql = str_replace('TABLE',$this->_table,$sql);
+
+		$where_explode = preg_split('/WHERE/i', $sql);
+		
+		
+		if(isset($where_explode[1])){
+			$where = $where_explode[1];
+			if( ($pos = stripos($where,'group by') ) !== false  &&  stripos($sql,'querygroup by') === false ){//where 之后有group by
+				$where = 'where'.substr($where, 0,$pos).' and ';
+			}else if( ($pos = stripos($where,'having') ) !== false){//where 之后有having
+				$where = 'where'.substr($where, 0,$pos).' and ';
+			}else if( ($pos = stripos($where,'order by') ) !== false){//where 之后有order by
+				$where = 'where'.substr($where, 0,$pos).' and ';
+			}else if( ($pos = stripos($where,'limit')) !== false){//where 之后有limit
+				$where = 'where'.substr($where, 0,$pos).' and ';
+			}else if( ($pos = stripos($where,'querygroup by')) !== false){//where 之后有limit
+				$where = 'where'.substr($where, 0,$pos).' and ';
+			}else{
+				$where =  'where'.$where.' and ';
+			}
+// 			$where_sql = preg_match('/(?:where|WHERE) /', $subject);
+			
+		}else{
+			if( ($pos = stripos($sql,'group by') ) !== false &&  stripos($sql,'querygroup by') === false ){//where 之后有group by
+				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
+			}else if( ($pos = stripos($sql,'having') ) !== false){//where 之后有having
+				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
+			}else if( ($pos = stripos($sql,'order by') ) !== false){//where 之后有order by
+				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
+			}else if( ($pos = stripos($sql,'limit')) !== false){//where 之后有limit
+				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
+			}else if( ($pos = stripos($sql,'querygroup by')) !== false){//where 之后有limit
+				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
+			}else{
+				$sql =$sql.' where ';
+			}
+			$where = 'where ';
+		}
+		$query_group = preg_split('/QUERYGROUP BY/i', $sql);
+		if( isset($query_group[1]) ) {
+			$this->_queryGroup = explode(',',trim($query_group[1]));
+			$pos = stripos($sql,'querygroup by');
+			$sql = substr($sql,	0,$pos);
+			 
+		}
+		
+		$this->_sql = $sql;
+		$this->_where = $where;
+		$this->_table_alias = $alias_name;
+		
+/* 		echo $this->_sql."\n";
+		echo $this->_where."\n";
+		echo ( $this->_table_alias == null) ? 'null':$this->_table_alias ,"\n";
+		var_dump($this->_queryGroup);
+		exit; */
 	}
 	
 	/**
@@ -108,43 +193,22 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	 * @param array $group
 	 * @param number $cycle
 	 */
-	public function preloadGroup($group,$cycle=1){
-		
-		$first = $this->offsetGet(0);
-		
-		$first_group = array();
-		foreach ( $first as $key=>$value){
-			$new_key = '';
-			foreach ($group as $g){
-				$new_key .= $value[$g].'|';	
-			}
-			$first_group[$new_key] = $value;
-		}
-		
-		$this->offsetSet(0, $first_group);
-		
-		$values = $this->offsetGet($cycle);
-		
-		$new_values = array();
-		foreach ($values as $key=>$value){
-			$new_key = '';
-			foreach ($group as $g){
-				$new_key .= $value[$g].'|';
-			}
-			$new_values[$new_key] = $value;
-		}
-		
-		$this->offsetSet($cycle, $new_values);
-		
+	public function preloadGroup($cycle=1){
+		$this->offsetGet(0);
+		$this->offsetGet($cycle);
 	}
 	
-	public function preloadGroupHour($group,$hour=1){
-		
+	public function preloadGroupHour($hour=1){
 		$time = $GLOBALS['CURRENT_TIME']  - 3600*$hour;
 		$cycle = $this->calcCycleIndex($time);
 		$this->preloadGroup($group,$cycle);
 	}
 	
+	/**
+	 * 废弃的函数，不知道用途
+	 * @param unknown $condition
+	 * @return mixed
+	 */
 	public function parseCondition($condition){
 		preg_match_all('/\[([^\[\]]+)\]/',$condition,$expressions);
 	
@@ -167,6 +231,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 		return $condition;
 	}
 	
+	
 	/**
 	 * 根据Index 获取某个周期的数据
 	 * @param int $index
@@ -176,32 +241,40 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 		
 		$cycle_where = '';
 		
-		if ( $this->_log_type == log_config::WITHCYCLE )
+		if ( $this->_log_type == log_config::WITHCYCLE  && $this->_table_alias === null)
 			$cycle_where = $this->_log_time_column.'>='.$this->calcCycle($index).' and '.$this->_log_time_column.'<'.$this->calcCycle($index-1);
+		else if($this->_log_type == log_config::WITHCYCLE  && $this->_table_alias !== null)
+			$cycle_where = $this->_table_alias.'.'.$this->_log_time_column.'>='.$this->calcCycle($index).' and '.$this->_table_alias.'.'.$this->_log_time_column.'<'.$this->calcCycle($index-1);
+		else
+			$this->_where = rtrim($this->_where,'and ');
 		
-		$user_condition = $this->parseCondition($this->_condition);
+		$where = $this->_where. $cycle_where;
 		
-		$condition = $cycle_where;
+		//空SQL
+		if( trim($where) == 'where' )throw Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
 		
-		if( empty($condition) ){
-			$condition = $user_condition;
-		}else if(  !empty($user_condition) ){
-			$condition = $condition.' and '.$cycle_where;
-		}
-		
-		if( empty($condition) ) throw Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
-		
- 		$command=$this->createCommand();
- 		$reader = $command->select($this->_filed)->from($this->_table);
+		$sql = str_replace($this->_where, $where, $this->_sql);
  		
- 		foreach ($this->_join as $join){
- 			$reader = $reader->join($join->table_name,$join->left_condition.'='.$join->right_condition);
+ 		$reader = $this->createCommand($sql)->queryAll();
+ 		
+ 		$return_arr  = $reader;
+ 		
+ 		if( !empty($this->_queryGroup) ) {
+ 			
+ 			$return_arr = array();
+ 			
+ 			foreach ( $reader as $row){
+ 				$key = '';
+ 				foreach ( $this->_queryGroup as $k) {
+ 					$key = $key . $row[$k] .'|';
+ 				}	
+ 				
+ 				$return_arr[$key]  = $row;
+ 				
+ 			}
+ 			
  		}
- 		
- 		$reader = $reader->where($condition)
- 		->queryAll();
- 		
-		return $reader;
+		return $return_arr;
 	}
 	
 	/**

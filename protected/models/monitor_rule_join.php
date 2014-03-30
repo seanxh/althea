@@ -10,7 +10,7 @@
  * @property string $left_condition
  * @property string $right_condition
  */
-class monitor_rule_join extends CActiveRecord
+class monitor_rule_join_disuse extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.

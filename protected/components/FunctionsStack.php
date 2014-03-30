@@ -13,8 +13,8 @@ class  FunctionsStack{
 	const ARRAYVAL = 'array_value';//数组值。变量
 	
 	public static $FUNC_PRELOAD = array(
-			'prev' => array('group',1,array(2,1)), // 需要prev的函数名=>preload函数,需要取原函数的第几个参数作为preload的参数，如果为数组，可以指定默认值
-			'prevHour'=>array('groupHour',1,array(2,1)),
+			'prev' => array('group',array(1,1)), // 需要prev的函数名=>preload函数,需要取原函数的第几个参数作为preload的参数，如果为数组，可以指定默认值
+			'prevHour'=>array('groupHour',array(1,1)),
 	);
 	
 	private $_stack=array();
@@ -90,13 +90,14 @@ class  FunctionsStack{
 									$params[] = $parameter[1];
 								}
 								$val = call_user_func_array(array($method,$function_name), $params);
-								
 								if( is_int($val) || is_float($val)){
 									array_push($stack2 , array(FunctionsStack::INTEGER,$val) );
 								}else if(is_string($val)){
 									array_push($stack2 , array(FunctionsStack::STRING,$val) );
 								}else if(is_array($val)){
 									array_push($stack2 , array(FunctionsStack::ARRAYVAL,$val) );
+								}else{
+									throw new Exception(get_class($method).':'.$function_name.' return value type error[int,float,string,array]');
 								}
 								
 								break;

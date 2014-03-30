@@ -8,6 +8,8 @@
  * @property int $rule_id
  * @property string $logic_operator
  * @property string $comparison_operator
+ * @property string $left_expression
+ * @property string $right_expression
  */
 class monitor_condition extends CActiveRecord
 {
@@ -37,11 +39,11 @@ class monitor_condition extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('rule_id,logic_operator,comparison_operator', 'required'),
-			array('logic_operator,comparison_operator', 'safe'),
+			array('rule_id,logic_operator,comparison_operator,left_expression,right_exression', 'required'),
+			array('logic_operator,comparison_operator,left_expression,right_exression', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id,rule_id,logic_operator,comparison_operator', 'safe', 'on'=>'search'),
+			array('id,rule_id,logic_operator,comparison_operator,left_expression,right_exression', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -54,7 +56,7 @@ class monitor_condition extends CActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'rule'	=> array(self::BELONGS_TO, 'monitor_rule', 'rule_id'),
-			'operation_expression' => array(self::HAS_MANY, 'monitor_operation_expression', 'condition_id'),
+// 			'operation_expression' => array(self::HAS_MANY, 'monitor_operation_expression', 'condition_id'),
 		);
 	}
 
@@ -69,6 +71,8 @@ class monitor_condition extends CActiveRecord
 			'rule_id' => '报警策略ID',
 			'logic_operator' => '逻辑运算符',
 			'comparison_operator' => '比较运算符',
+			'right_expression'=>'右运算表达式',
+			'left_expression'=>'左运算表达式',
 		);
 	}
 

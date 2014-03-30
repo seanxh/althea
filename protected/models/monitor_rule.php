@@ -7,8 +7,7 @@
  * @property integer $id
  * @property string $log_id
  * @property string $monitor_name
- * @property string $filter_fields
- * @property string $filter_conditions
+ * @property string $select_sql
  * @property int $is_alert_everytime
  * @property int $alert_in_cycles
  * @property int $alert_when_gt_times
@@ -71,7 +70,7 @@ class monitor_rule extends CActiveRecord
 			'log_config'	=> array(self::BELONGS_TO, 'log_config', 'log_id'),
 			'condition' => array(self::HAS_MANY,'monitor_condition','rule_id'),
 			'alert_deploy'=>array(self::BELONGS_TO,'alert_deploy','alert_deploy_id'),
-			'rule_join'=>array(self::HAS_MANY,'monitor_rule_join','rule_id'),
+// 			'rule_join'=>array(self::HAS_MANY,'monitor_rule_join','rule_id'),
 		);
 	}
 
@@ -90,8 +89,9 @@ class monitor_rule extends CActiveRecord
 			'log_cycle'=>'日志周期(秒)',
 			'log_id' => '日志ID',
 			'monitor_name'=>'监控名称',
-			'filter_fields'=>'指定字段',
-			'filter_conditions'=>'指定条件',
+			'select_sql'=>'指定查询SQL',
+// 			'filter_fields'=>'指定字段',
+// 			'filter_conditions'=>'指定条件',
 			'is_alert_everytime'=>'是否每次',
 			'alert_in_cycles'=>'在N个周期内监控',
 			'alert_when_gt_times'=>'当异常大于N次时报警',

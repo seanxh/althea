@@ -9,7 +9,7 @@ class AlertData extends RuleData{
 	}
 	
 	
-	public function  preloadGroup(){
+	public function  preloadGroup($cycle=1){
 	}
 	
 	public function offsetGet ($offset) {
