@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-import database
+import database,os,sys
 import multiprocessing
 import commands
 import time
@@ -17,6 +17,10 @@ DAEMON_PATH = "a.php"
 PHP_CLI = "/usr/bin/php"
 #本脚本执行日志，记录的文件
 LOG_PATH = "/tmp/monitor_"+time.strftime('%Y%m%d')+".log"
+
+CURRENT_DIR = os.path.split(os.path.realpath(__file__))[0]
+
+YIIC = "/protected/yiic monitor --monitor_id="
 
 
 ##数据库设置
@@ -43,9 +47,9 @@ def calc_monitor_cycle():
     log_model = db.log_config
     logs = log_model.select()
     
-    logs_dict = {}
-    for log in logs:
-        logs_dict[log.id] = log
+    # logs_dict = {}
+    # for log in logs:
+        # logs_dict[log.id] = log
     
     #gt_1min_rules = {}
     #lt_1min_rules = {}
@@ -53,13 +57,16 @@ def calc_monitor_cycle():
     
     for rule in monitor_rules:
         if rule.is_alert_everytime == 1:
-            cycle = logs_dict[ rule.log_id ].log_cycle
+            # cycle = logs_dict[ rule.log_id ].log_cycle
+            cycle = rule.cycle
         else:
-            cycle = int(logs_dict[ rule.log_id ].log_cycle)* int(rule.alert_in_cycles)
+            # cycle = int(logs_dict[ rule.log_id ].log_cycle)* int(rule.alert_in_cycles)
+            cycle = int(rule.cycle)* int(rule.alert_in_cycles)
         #if cycle >= 60 :
         rules_cycle[rule.id] = cycle
         #else:
         #    lt_1min_rules[rule.id] = cycle
+    print rules_cycle
     return rules_cycle
 
 
@@ -69,13 +76,19 @@ class ForkMonitor(multiprocessing.Process):
         self.daemon = True #如果设置此参数，则为后台线程
         self.rules = rules
         self.time_stamp = time_stamp
+        self.shell = CURRENT_DIR+YIIC
         
     def run(self):
         for rule in self.rules:
             if self.time_stamp % self.rules[rule] == 0:
+                start = time.time()
+                (status,result) = commands.getstatusoutput(self.shell+str(rule))
+                end = time.time()
+                exec_time = round(end-start,3)
                 log = open(LOG_PATH, 'a')
-                log.write("%s|%d\n" % (time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())), rule ) ) 
+                log.write("%s|%s|%f|%d|%s\n" % (time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())), self.shell+str(rule), exec_time, status, result ) ) 
                 log.close()
+                
 
 #自动生成这些 shell 命令，并fork进程去执行，然后退出
 # /opt/www/monitor.api.rms.baidu.com/service/mon_common_api/daemon/crontab/cron_mon_api.php rms 1 1
