@@ -6,67 +6,127 @@ class SiteController extends CController{
 		header('Content-type: text/html; charset=utf-8');
 	}
 	
+	public function actionChart(){
+		$this->render('chart');
+	}
 	
 	public function actionIndex(){
 		
-// 		$time = time();
+		$chart_id = Yii::app()->request->getParam('chart',0);
+		
+		if(empty($chart_id)) throw new Exception('NULL chart id');
+		
+		$chart  = chart_config::model()->findByPk($chart_id);
+		
+		$chart_cycle = $chart->cycle;
+		//日志表配置
+		$log = $chart->log_config;
+		
+		$default_etime = intval( time()/$chart_cycle) * $chart_cycle;
+		//默认起始时间为3个周期，结束时间为当前周期
+		$start_time = strtotime( Yii::app()->request->getParam('stime',date('Y-m-d H:i:s',$default_etime-$chart_cycle*3)) );
+		$end_time = strtotime( Yii::app()->request->getParam('etime',date('Y-m-d H:i:s',$default_etime)) );
 
-		$GLOBALS['CURRENT_TIME'] = $time = strtotime('2014-03-09 23:19:00');
-		
-		$monitor_id = 1;
-		
-		$rule = monitor_rule::model()->findByPk($monitor_id);
-		
-		//报警策略的日志配置
-		$log_config = $rule->log_config;
-		
-		//如果是指定周期的日志，则计算周期
-		$cycle_time = ($log_config->log_type) ? time() :  intval($time/$log_config->log_cycle)*$log_config->log_cycle;
+		$current = time(); 
 		
 		//日志的数据库配置
-		$database = $log_config->database;
-		
-		//等待本周期的数据入库
- 		sleep($rule->wait_time);
+		$database = $log->database;
 		
 		$log_dsn = $database->type.':host='.$database->host.';port='.$database->port.';dbname='.$database->dbname;
 		
-		//监控策略数据源
-		$rule_data = new RuleData($log_dsn,$database->user,$database->passwd, 'utf8',$log_config,$rule,$cycle_time);
+		$arr = array();
+		
+		for ($s=$start_time; $s<=$end_time;$s+=$chart_cycle){
+			$date = date('Y-m-d H:i:s',$s); 
+			$arr[$date] = array();
 			
-		//监控策略条件表达式(一个监控策略有可能有多个表达式，多个表达式可能是逻辑“或”，“与”的关系
-		$condition = $rule->condition;
-		
-		$expressions = array();
-		
-		foreach($condition as $con){
-			$expression = array();
-			//表达式逻辑
-			$expression['logic'] = $con->logic_operator;
-			//表达式比较运算符
-			$expression['compare'] = $con->comparison_operator;
-			//依次取出左式和右式
-			foreach($con->operation_expression as $child_expression){
-				$expression[$child_expression->left_or_right] = $child_expression->expression;
+// 			$cycle_time = ceil( ($current - $s)/$chart_cycle);
+			
+			//监控策略数据源
+			$rule_data = new RuleData($log_dsn,$database->user,$database->passwd, 'utf8',$log,$chart,$s);
+			
+			$expression = new ChildExpression($chart->expression);
+			$expression->preloadData($rule_data);
+			
+			foreach($rule_data[0]  as $key=>$value){
+				$arr[$date][$key] = $expression->calc($rule_data,$key);
 			}
 			
-// 			var_dump($expression['right']);exit;
-			
-			$expressions[]  = new Expression($expression['left'], $expression['right'], $expression['compare'] , $expression['logic']);
 		}
 		
-		$condition = new Condition($expressions,$rule_data);
-		$condition->preload();
-		$alert_data = $condition->judgeCondition();
-// 		echo "------------------------------------------------\n";
-
-
-		if( count($alert_data) > 0 ){
-			$alarm = new Alarm($rule);
-			$alarm->multiMail($alert_data);
-			$alarm->oneMail($alert_data);
+		$categories = array();
+		$series = array();
+		foreach ($arr as $date=>$data ){
+			
+			$categories[] = $date;
+			
+			foreach ($data as $key=>$value){
+				if( !isset( $series[ $key ]) )	$series[ $key ]= array();
+				$series[ $key ][] = floatval($value);
+			}
+			
 		}
+		
+		$series_data = array();
+		foreach ($series as $key=>$data){
+			$series_data[] = array(
+					'name'=>$key,
+					'data'=>$data,
+			);
+		}
+		
+		$this->render('spline',array(
+				'chart_id'=>$chart_id,
+				'series'=> $series_data,
+				'categories'=>$categories,
+				'title'=>$chart->title,
+				'type'=> chart_config::$CHART[$chart->type],
+				'subtitle'=>$chart->subtitle,
+				'yAxisTitle'=>$chart->y_title,
+				'realtime'=>$chart->realtime,
+				'theme'=>chart_config::$THEME[$chart->theme]
+		));
 		
 	}
 	
+	public function actionRealtime(){
+		
+		$chart_id = Yii::app()->request->getParam('chart',0);
+		
+		if(empty($chart_id)) throw new Exception('NULL chart id');
+		
+		$chart  = chart_config::model()->findByPk($chart_id);
+		
+		$chart_cycle = $chart->cycle;
+		//日志表配置
+		$log = $chart->log_config;
+		
+		//默认起始时间为1个周期，结束时间为当前周期
+		$time = intval( time()/$chart_cycle) * $chart_cycle;
+		
+		//日志的数据库配置
+		$database = $log->database;
+		
+		$log_dsn = $database->type.':host='.$database->host.';port='.$database->port.';dbname='.$database->dbname;
+		
+		$arr = array();
+		
+		$date = date('Y-m-d H:i:s',$time);
+		$arr[$date] = array();
+			
+		//监控策略数据源
+		$rule_data = new RuleData($log_dsn,$database->user,$database->passwd, 'utf8',$log,$chart,$time);
+			
+		$expression = new ChildExpression($chart->expression);
+		$expression->preloadData($rule_data);
+			
+		foreach($rule_data[0]  as $key=>$value){
+			$arr[$key] = $expression->calc($rule_data,$key);
+		}
+		
+		$this->render('realtime',array(
+				'date'=> $date,
+				'data'=>$key,
+		));
+	}
 }

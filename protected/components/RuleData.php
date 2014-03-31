@@ -138,7 +138,7 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 		
 		if(isset($where_explode[1])){
 			$where = $where_explode[1];
-			if( ($pos = stripos($where,'group by') ) !== false  &&  stripos($sql,'querygroup by') === false ){//where 之后有group by
+			if( ($pos = stripos($where,'group by') ) !== false  &&  stripos($sql,'querygroup by') !== $pos-strlen('query') ){//where 之后有group by
 				$where = 'where'.substr($where, 0,$pos).' and ';
 			}else if( ($pos = stripos($where,'having') ) !== false){//where 之后有having
 				$where = 'where'.substr($where, 0,$pos).' and ';
@@ -154,7 +154,7 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 // 			$where_sql = preg_match('/(?:where|WHERE) /', $subject);
 			
 		}else{
-			if( ($pos = stripos($sql,'group by') ) !== false &&  stripos($sql,'querygroup by') === false ){//where 之后有group by
+			if( ($pos = stripos($sql,'group by') ) !== false &&  stripos($sql,'querygroup by') !== $pos-strlen('query')  ){//where 之后有group by
 				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
 			}else if( ($pos = stripos($sql,'having') ) !== false){//where 之后有having
 				$sql = substr($sql,0,$pos) .' where '.substr($sql, $pos);
@@ -254,6 +254,8 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 		if( trim($where) == 'where' )throw Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
 		
 		$sql = str_replace($this->_where, $where, $this->_sql);
+		
+//  		echo $sql."\n";
  		
  		$reader = $this->createCommand($sql)->queryAll();
  		

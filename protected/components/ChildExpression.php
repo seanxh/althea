@@ -226,6 +226,7 @@ class ChildExpression {
 	private function _calc($type,$data){
 		$postfix_stack = $this->_postfix_expression;
 		$stack2 = array();
+		
 		while(count($postfix_stack) > 0){
 				
 			$operator = array_shift($postfix_stack);
@@ -266,7 +267,6 @@ class ChildExpression {
 					break;
 			}
 		}
-		
 		
 		if( count($stack2) == 1){
 			return current($stack2);
