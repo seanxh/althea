@@ -252,6 +252,7 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 		
 		//空SQL
 		if( trim($where) == 'where' )throw new Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
+
 		
 		$sql = str_replace($this->_where, $where, $this->_sql);
 		
@@ -266,12 +267,14 @@ $sql = str_replace('TABLE',$this->_table,$sql);
  			$return_arr = array();
  			
  			foreach ( $reader as $row){
- 				$key = '';
+ 				$key = array();
  				foreach ( $this->_queryGroup as $k) {
- 					$key = $key . $row[$k] .'|';
- 				}	
- 				
- 				$return_arr[$key]  = $row;
+                    if( $k ){
+                        $key[] = $row[$k];
+                    }
+ 				}	 
+                if( !empty($key))
+     				$return_arr[ implode(':',$key) ]  = $row;
  				
  			}
  			

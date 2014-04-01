@@ -13,7 +13,7 @@
 			$(function () {
 			        Althea.charts({
 				        'container' : $('#container'),
-				        'chart' : 1,
+				        'chart' : 2 ,
 				        'start_time': "2014-03-30 11:55:00",
 					    'end_time': "2014-03-30 11:58:00",
 			        });

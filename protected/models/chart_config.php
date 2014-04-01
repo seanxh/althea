@@ -14,6 +14,7 @@
  * @property int $cycle
  * @property int $realtime
  * @property string $y_title
+ * @property int $max_points
  * @property int $theme
  * @property int $status
  * @property log_config $log_config
@@ -111,6 +112,7 @@ class chart_config extends CActiveRecord
 			'expression'=>'Y轴计算表达式',
 			'title'=>'图表标题',
 			'subtitle'=>'副标题',
+			'max_points'=>'动态图最多点数',
 			'y_title'=>'Y轴标题',
 			'status'=>'图表状态',				
 		);

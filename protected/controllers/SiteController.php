@@ -11,8 +11,9 @@ class SiteController extends CController{
 	}
 	
 	public function actionIndex(){
+		$chart_id = Yii::app()->request->getParam('chart',0); 
 		
-		$chart_id = Yii::app()->request->getParam('chart',0);
+		$host = Yii::app()->request->hostInfo;
 		
 		if(empty($chart_id)) throw new Exception('NULL chart id');
 		
@@ -91,7 +92,9 @@ class SiteController extends CController{
 				'yAxisTitle'=>$chart->y_title,
 				'realtime'=>$chart->realtime,
 				'realtimeCycle'=>$chart->cycle,
-				'theme'=>chart_config::$THEME[$chart->theme]
+				'theme'=>chart_config::$THEME[$chart->theme],
+				'host'=>$host,
+				'maxPoints'=>($chart->max_points>0) ? $chart->max_points : 5,
 		));
 		
 	}
@@ -119,21 +122,21 @@ class SiteController extends CController{
 		$arr = array();
 		
 		$date = date('Y-m-d H:i:s',$time);
-		$arr[$date] = array();
 			
 		//监控策略数据源
 		$rule_data = new RuleData($log_dsn,$database->user,$database->passwd, 'utf8',$log,$chart,$time);
 			
 		$expression = new ChildExpression($chart->expression);
 		$expression->preloadData($rule_data);
-			
 		foreach($rule_data[0]  as $key=>$value){
-			$arr[$key] = $expression->calc($rule_data,$key);
+			if( !empty($key) ){
+				$arr[$key] = floatval($expression->calc($rule_data,$key));
+			}
 		}
 		
 		$this->render('realtime',array(
 				'date'=> $date,
-				'data'=>$key,
+				'data'=>$arr,
 		));
 	}
 }

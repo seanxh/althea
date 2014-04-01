@@ -16,7 +16,7 @@ chart: {
 	        	 	$.ajax({
 				             type: "get",
 				             async: false,
-				             url: '<?php echo Yii::app()->baseUrl?>/?r=site/realtime&chart=<?php echo $chart_id;?>',
+				             url: '<?php echo $host.'/'.Yii::app()->baseUrl?>/?r=site/realtime&chart=<?php echo $chart_id;?>',
 				             dataType: "jsonp",
 				             jsonpCallback:"altheaChart",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据
 				             success: function(realData){
@@ -53,7 +53,7 @@ chart: {
                                 var shift_point = false;
                                 for(i=0;i < series.length;i++){
 								        var y = realData.data.hasOwnProperty( series[i].name ) ? realData.data[series[i].name] : 0;
-                                        shift_point = series[i].data.length > 10   
+                                        shift_point = series[i].data.length >= <?php echo $maxPoints;?>;
                                         series[i].addPoint(y,false);
                                 }
                                 
@@ -89,9 +89,6 @@ chart: {
                                     charts.xAxis[0].setCategories(categories);
                                     
                                 }
-
-                                
-
                                 
                                 charts.redraw();
 
