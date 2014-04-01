@@ -22,10 +22,16 @@ class SiteController extends CController{
 		//日志表配置
 		$log = $chart->log_config;
 		
-		$default_etime = intval( time()/$chart_cycle) * $chart_cycle;
-		//默认起始时间为3个周期，结束时间为当前周期
-		$start_time = strtotime( Yii::app()->request->getParam('stime',date('Y-m-d H:i:s',$default_etime-$chart_cycle*3)) );
-		$end_time = strtotime( Yii::app()->request->getParam('etime',date('Y-m-d H:i:s',$default_etime)) );
+		if( $log->log_type == log_config::WITHCYCLE) {
+			$default_etime = intval( time()/$chart_cycle) * $chart_cycle;
+			//默认起始时间为3个周期，结束时间为当前周期
+			$start_time = strtotime( Yii::app()->request->getParam('stime',date('Y-m-d H:i:s',$default_etime-$chart_cycle*3)) );
+			$end_time = strtotime( Yii::app()->request->getParam('etime',date('Y-m-d H:i:s',$default_etime)) );
+		}else{
+			$default_etime = time();
+			$start_time = $end_time = $default_etime;
+		}
+		
 
 		$current = time(); 
 		
@@ -84,6 +90,7 @@ class SiteController extends CController{
 				'subtitle'=>$chart->subtitle,
 				'yAxisTitle'=>$chart->y_title,
 				'realtime'=>$chart->realtime,
+				'realtimeCycle'=>$chart->cycle,
 				'theme'=>chart_config::$THEME[$chart->theme]
 		));
 		

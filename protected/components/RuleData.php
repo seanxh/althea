@@ -251,7 +251,7 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 		$where = $this->_where. $cycle_where;
 		
 		//空SQL
-		if( trim($where) == 'where' )throw Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
+		if( trim($where) == 'where' )throw new Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
 		
 		$sql = str_replace($this->_where, $where, $this->_sql);
 		
