@@ -52,15 +52,13 @@ class MonitorCommand extends CConsoleCommand{
 			$expression['left'] = $con->left_expression;
 			
 			$expression['right'] = $con->right_expression;
-			
-			$expressions[]  = new Expression($expression['left'], $expression['right'], $expression['compare'] , $expression['logic']);
+			$expressions[$con->serial_num]  = new Expression($expression['left'], $expression['right'], $expression['compare'] );
 		}
 		
 		$condition = new Condition($expressions,$rule_data);
 		$condition->preload();
 		$alert_data = $condition->judgeCondition();
 // 		echo "------------------------------------------------\n";
-
 		if( count($alert_data) > 0 ){
 			$alarm = new Alarm($rule);
 // 			$alarm->multiMail($alert_data);
@@ -68,6 +66,11 @@ class MonitorCommand extends CConsoleCommand{
 		}
 		
 		
+	}
+	
+	public function actionSend(){
+		
+		Mail::send(array('xuhao05'), '报错', '报警');
 	}
 	
 } 

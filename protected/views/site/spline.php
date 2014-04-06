@@ -8,7 +8,7 @@ chart: {
 	type: '<?php echo $type;?>'<?php if($realtime == 1):?>,                                                 
     animation: Highcharts.svg, // don't animate in old IE               
 	events: {
-		load: function() {                                              
+		load: function() {
 			// set up the updating of the chart each second             
 	       var series = this.series;                
             var charts = this;                

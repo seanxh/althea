@@ -42,11 +42,30 @@ class Alarm{
 			$contents[] = $this->getData($this->rule->alert_content,$alert_data,$key);
 		}
 // 		var_dump( $receiver );
+		$mail_content = <<<EOT
+<style>
+table, td {
+ border:1px solid #ccc;
+ border-collapse:collapse;
+ background-color:#F2FAFE;
+}
+table, td {
+ padding:4px;
+}
+ table tr td{
+ font-size:13px;
+ font-family:"宋体";
+ }
+ a img{
+	border:0;
+ }
+</style>
+EOT;
+		$mail_content .=  '<table>' . $this->rule->alert_head .  implode('',$contents) ."</table>";
 		
-		$contents =  "<table border=1>" . $this->rule->alert_head .  implode('',$contents) ."</table>";
-		
-		Mail::send($receiver['mail'], $title,$contents);
-		Message::send($receiver['msg'], $title);
+		Mail::send($receiver['mail'], $title,$mail_content);
+		if(isset($receiver['msg']) && !empty($receiver['msg']))
+			Message::send($receiver['msg'], $title);
 	}
 	
 	public function multiMail($alert_data){

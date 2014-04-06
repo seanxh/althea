@@ -17,28 +17,17 @@ class Expression {
 	 */
 	private $_right_expression = null;
 	
-	/**
-	 * 逻辑运算符
-	 * @var unknown
-	 */
-	public $logic = null;
-	
 	private $_compare = null;
 	
 	public $result = null;
-	
-	const LOGICAND = 'and';
-	
-	const  LOGICOR = 'or';
 	
 	/**
 	 * 构造方法
 	 * @param string $left_expression 左表达式
 	 * @param string $right_expression 右表达式
 	 * @param string $compare 比较运算符
-	 * @param string $logic 逻辑运算符
 	 */
-	function __construct($left_expression,$right_expression,$compare,$logic){
+	function __construct($left_expression,$right_expression,$compare){
 		//子表达式
 		$this->_left_expression = new ChildExpression($left_expression);
 		
@@ -46,8 +35,6 @@ class Expression {
 		$this->_right_expression = new ChildExpression($right_expression);
 		
 		$this->_compare = $compare;
-		$this->logic = $logic;
-		
 	}
 	
 	/**

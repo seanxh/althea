@@ -6,8 +6,14 @@ class Message{
 		$str .= 'Reciever:'. implode(',', $recevier )."\n";
 		$str .= 'Title:'.$title."\n";
 		$str .= 'Message end...'."\n";
-		echo $str;
 		$fp = fopen('/tmp/message', 'a+');
 		fwrite($fp,$str);
+		try {
+			SMS::send($recevier, $title);
+		}catch ( Exception $e){
+			return false;
+		}
+		
+		return false;
 	}
 }

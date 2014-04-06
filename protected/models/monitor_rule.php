@@ -8,6 +8,7 @@
  * @property string $log_id
  * @property string $monitor_name
  * @property string $select_sql
+ * @property string $condition_logic_operator
  * @property int $is_alert_everytime
  * @property int $alert_in_cycles
  * @property int $alert_when_gt_times
@@ -90,8 +91,7 @@ class monitor_rule extends CActiveRecord
 			'log_id' => '日志ID',
 			'monitor_name'=>'监控名称',
 			'select_sql'=>'指定查询SQL',
-// 			'filter_fields'=>'指定字段',
-// 			'filter_conditions'=>'指定条件',
+			'condition_logic_operator'=>'表达式逻辑运算',
 			'is_alert_everytime'=>'是否每次',
 			'alert_in_cycles'=>'在N个周期内监控',
 			'alert_when_gt_times'=>'当异常大于N次时报警',

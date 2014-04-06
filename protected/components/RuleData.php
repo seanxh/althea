@@ -21,15 +21,12 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	
 	protected $_log_time_column_type;
 	
-	protected $_condition;
-	
 	protected $_table;
 	
-	protected $_filed;
+	protected  $_data;
+
+	public  $condition_logic_operator;
 	
-	protected  $_data; 
-	
-	protected $_join;
 	
 	protected  $_sql;
 	
@@ -107,9 +104,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	public function setRule($rule){
 		$this->rule = $rule;
 		$this->analyseSql($rule->select_sql);
-// 		$this->_filed = empty($rule->filter_fields) ? '*' :  $rule->filter_fields;
-// 		$this->_condition= empty($rule->filter_conditions) ? '' :  $rule->filter_conditions;
-// 		$this->_join  = empty($rule->rule_join) ? array() : $rule->rule_join;
+		$this->condition_logic_operator =  empty($rule->condition_logic_operator) ? '1' : $rule->condition_logic_operator; 
 	}
 
 	public function analyseSql($sql){

@@ -6,7 +6,7 @@
  * The followings are the available columns in table 'budget_unit':
  * @property integer $id
  * @property int $rule_id
- * @property string $logic_operator
+ * @property int $serial_num
  * @property string $comparison_operator
  * @property string $left_expression
  * @property string $right_expression
@@ -39,11 +39,11 @@ class monitor_condition extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('rule_id,logic_operator,comparison_operator,left_expression,right_exression', 'required'),
-			array('logic_operator,comparison_operator,left_expression,right_exression', 'safe'),
+			array('rule_id,logic_operator,serial_number,left_expression,right_exression', 'required'),
+			array('logic_operator,serial_number,left_expression,right_exression', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id,rule_id,logic_operator,comparison_operator,left_expression,right_exression', 'safe', 'on'=>'search'),
+			array('id,rule_id,logic_operator,serial_number,left_expression,right_exression', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -69,7 +69,7 @@ class monitor_condition extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'rule_id' => '报警策略ID',
-			'logic_operator' => '逻辑运算符',
+			'serial_num' => '表达式编号',
 			'comparison_operator' => '比较运算符',
 			'right_expression'=>'右运算表达式',
 			'left_expression'=>'左运算表达式',
