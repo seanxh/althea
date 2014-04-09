@@ -1,4 +1,4 @@
-# Althea 	{#welcome}
+# Althea
 
 
 ------
@@ -76,7 +76,7 @@ array(
 **比较运算符:** >,==(或=),<,>=,<=,!=,in
 **布尔运算符:** &&(或&),||(或|),and,or
 例子：
-(\$value-prev(value)) > 200 && \$name in {test,test2}
+(\$value-prev(value)) > 200 && $name in {test,test2}
 
 #SQL和表达式
 select * from **TABLE** querygroup by name 取出的数据是这样的：
@@ -90,15 +90,15 @@ Althea会遍历所有的当前周期的数据，并用表达式进行匹配，�
 id      | name | value | status | ctime
 --------- | -----
 1  | test | 20 |  20 | 2014-04-09 11:00:00
-而表达式是**(\$value-prev(value)) > 200 && \$name in {test,test2}**：
-> - \$value指的是当前周期中的value=20，而prev(value)则指的是时间为2014-04-09 10:59:00，name为test的value=5
+而表达式是**(\$value-prev(value)) > 200 && $name in {test,test2}**：
+> - $value指的是当前周期中的value=20，而prev(value)则指的是时间为2014-04-09 10:59:00，name为test的value=5
 > - $name则必须是数组中的某个值，此处则为test。
 此条记录满足所有的条件，则标记为可以报警项。
 
 #图表
 图表的配置很简单，
 >- 一个SQL
->- 一个计算表达式。像：\$value-prev(value)
+>- 一个计算表达式。像：$value-prev(value)
 
 引用图表：
 ```
