@@ -30,9 +30,9 @@ id      | name | value | status
 你想要监控这个表，并且每分钟把status不为0的值报警。
 
 那你需要：
-> **注册一个表:** table1
-> **编写一个SQL:** select * from TABLE where status!=0
-> **一个报警模板:** [\$name] : [\$value] status: [\$status]
+> * **注册一个表:** table1
+> * **编写一个SQL:** select * from TABLE where status!=0
+> * **一个报警模板:** [\$name] : [\$value] status: [\$status]
 
 ### 监控2
 **如果你有一个这样的表** 
