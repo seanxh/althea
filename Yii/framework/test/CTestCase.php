@@ -18,7 +18,7 @@ else
 {
     require_once('PHPUnit/Autoload.php');
 }**/
-    require_once('PHPUnit/Autoload.php');
+//     require_once('PHPUnit/Autoload.php');
 
 /**
  * CTestCase is the base class for all test case classes.
