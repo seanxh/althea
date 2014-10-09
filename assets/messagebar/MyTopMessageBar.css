@@ -1,0 +1,52 @@
+.MessageBarWarning
+{
+    padding-left:10px;
+    margin:0px;
+    background:#F4A83E;
+    background:#FF8080;
+    color:#FFFFFF;
+    height:35px;
+    line-height:35px;
+    font-family:arial;
+    font-size:12px;
+    font-weight:bold;
+    border-bottom:2px solid #FF794A;
+    display:none;
+    text-align:center;
+    position: relative;
+}
+
+.MessageBarOk
+{
+    padding-left:10px;
+    margin:0px;
+    background:#CEFFCE;
+    color:#006500;
+    height:35px;
+    line-height:35px;
+    font-family:arial;
+    font-size:12px;
+    font-weight:bold;
+    border-bottom:2px solid #009A00;
+    display:none;
+    text-align:center;
+    position: relative;
+}
+
+#messageBarCloseBtn
+{
+    cursor:pointer;
+    z-index:10000;
+    height:32px;
+    width:16px;
+    position:absolute;
+    right:10px;
+    top:0px;
+    display:none;
+}
+
+#wrap
+{
+    margin:0px;
+    padding:10px;
+}
