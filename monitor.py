@@ -22,12 +22,13 @@ CURRENT_DIR = os.path.split(os.path.realpath(__file__))[0]
 
 YIIC = "/protected/yiic monitor --monitor_id="
 
+print YIIC
 
 ##数据库设置
-MYSQL_HOST = '127.0.0.1:3306'
-MYSQL_DB = 'monitor'
-MYSQL_USER = 'root'
-MYSQL_PASS = 'root'
+MYSQL_HOST = 'ai-atm-ur-statistic01.ai01.baidu.com:3308'
+MYSQL_DB = 'general_monitor'
+MYSQL_USER = 'rms'
+MYSQL_PASS = 'a1b2c3d4'
 
 global db
 db = database.Connection(host=MYSQL_HOST,

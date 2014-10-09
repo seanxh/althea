@@ -21,14 +21,14 @@ class Operator{
 		$this->value = $value;
 		
 		if($type == self::FUNCTIONS){
-			$this->_func_stack = $this->analyseFuncStack($this->value);
+            $function_stack = new FunctionsStack();
+			$this->_func_stack = $function_stack->analyseFuncStack($this->value);
 		}
 	}
 	
 	function __toString(){
 		return strtolower($this->type ) . ': ' . $this->value;
 	}
-	
 	
 	function getValue($rule_data,$key,$func_class='Method') {
 		
@@ -53,7 +53,8 @@ class Operator{
 				break;
 		}
 	}
-	
+
+    /*
 	function getAlarmValue($user){
 		switch ($this->type) {
 			case self::FUNCTIONS :
@@ -70,7 +71,7 @@ class Operator{
 				return $this->value;
 				break;
 		}
-	}
+	}*/
 	
 	function preloadData() {
 // 	echo $this->type ."\n";
@@ -236,94 +237,6 @@ class Operator{
 		}
 		
 		
-	}
-	
-	/**
-	 * 分析函数调用栈
-	 * @param string $str
-	 * @return FunctionsStack
-	 */
-	function analyseFuncStack($str){
-		$func_stack = new FunctionsStack();
-		
-		//首先将{}替换为array()的格式
-		$element = array();
-		$type = null;
-		
-		
-		for($i=0;$i<strlen($str);$i++){//挨个遍历函数调用表达式
-			$char =  $str[$i];
-			if( $char >= '0'  && $char <= '9' ){
-				$element[] = $char;
-				if($type == null)//如果以数字开头，且之前没有被定义类型，则为一个整型数字的开头
-					$type = FunctionsStack::INTEGER;
-				continue;
-			}else if( ($char >= 'A' && $char <= 'Z') || ($char>='a' && $char <= 'z')){
-				$element[] = $char;
-				if($type == null)//如果是以字母开头，则有可能是函数名也有可能是字符串
-					$type = FunctionsStack::PENDING;
-				else if($type == FunctionsStack::INTEGER)//如果整数中包含除数字外的字符，则为字符串
-					$type = FunctionsStack::STRING;
-				continue;
-			}else if($char == '$'){
-				$element[] = $char;
-				if($type == null)//如果以$符开头，则为变量
-					$type = FunctionsStack::VARIABLE;
-				else if($type == FunctionsStack::INTEGER)//如果整数中包含除数字外的字符，则为字符串
-					$type = FunctionsStack::STRING;
-				continue;
-			}else if($char == ','){
-// 				$element[] = $char;
-				if(!empty($element)){//如果是逗号，且之前处于未决状态，则应该是一个字符串。类似array(abc,ccc)异或prev(abc,addd)
-					if($type == FunctionsStack::PENDING)
-						$type = FunctionsStack::STRING;
-					else if($type == FunctionsStack::INTEGER)//如果整数中包含除数字外的字符，则为字符串
-						$type = FunctionsStack::STRING;
-					$func_stack->push( $type,implode('', $element) );
-					$element = array();
-					$type = null;
-				}
-				continue;
-			}else if($char == ':' || $char=='_' || $char=='.'){//如果碰到以下字符，直接入栈
-				$element[] = $char;
-				continue;
-			}else if( $char=='('){//如果碰到(，则当前type肯定为function
-				$type = FunctionsStack::FUNCTIONS;
-				if(!empty($element)){
-					$func_stack->push( FunctionsStack::BRACKET, '(' );
-					$func_stack->push($type ,implode('', $element) );
-					$element = array();
-					$type = null;
-				}
-			}else if($char == ')'){
-				if($type == FunctionsStack::PENDING){//如果碰到)，且之前处于未决状态，则应该是一个字符串。
-					$type = FunctionsStack::STRING;
-				}
-				if(!empty($element)){//如果)之前的element不为空，把element都弹出入 function stack，再将括号入栈
-					$func_stack->push($type ,implode('', $element) );
-					$func_stack->push( FunctionsStack::BRACKET, ')' );
-					$element = array();
-					$type = null;
-				}else{
-					$func_stack->push( FunctionsStack::BRACKET, ')' );
-				}
-			}
-			
-/* 			switch ($char){
-				case '('://如果碰到(，则当前type肯定为function
-					
-					break;
-				case ')':
-					
-					break;
-			} */
-			
-		}
-
-	/* foreach ($func_stack->get() as $k=>$v){
-			echo $v[0].':' . $v[1]."\n";
-		} */
-		return $func_stack;
 	}
 	
 }

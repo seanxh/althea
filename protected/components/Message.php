@@ -7,7 +7,7 @@ class Message{
 		$str .= 'Title:'.$title."\n";
 		$str .= 'Message end...'."\n";
 		$fp = fopen('/tmp/message', 'a+');
-		fwrite($fp,$str);
+		fwrite($fp,$str);  
 		try {
 			SMS::send($recevier, $title);
 		}catch ( Exception $e){

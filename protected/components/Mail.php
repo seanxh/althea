@@ -10,7 +10,6 @@ class Mail{
 		$str .= 'Content:'.$content."\n";
 		$str .= 'Mail end...'."\n";
 		$fp = fopen('/tmp/mail', 'a+');
-		echo $str;
 		try {
 			Mailer::send($recevier, $title, $content);
 		}catch ( Exception $e){

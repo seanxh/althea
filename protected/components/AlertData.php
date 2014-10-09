@@ -1,22 +1,70 @@
 <?php
-class AlertData extends RuleData{
+class AlertData implements ArrayAccess,Iterator,Countable{
 	
 	/**
 	 * @param RuleData $rule_data
 	 */
-	public function __construct($rule_data){
-		parent::__construct( $rule_data->dsn,  $rule_data->username, $rule_data->password, $rule_data->charset, $rule_data->log_config, $rule_data->rule,$rule_data->current_cycle_timestamp);
+	public function __construct(){
 	}
-	
-	
-	public function  preloadGroup($cycle=1){
-	}
-	
-	public function offsetGet ($offset) {
-		if(!isset( $this->_data[$offset])){
-			return null;
-		}
-		return $this->_data[$offset];
-	}
+
+    // Interface实现
+    //countable,iterable,arrayaccess实现
+
+    public function count() {
+        return count($this->_data);
+    }
+
+    function rewind() {
+        reset($this->_data);
+    }
+
+    function current() {
+        return current($this->_data);
+    }
+
+    function key() {
+        return key($this->_data);
+    }
+
+    function next() {
+        next($this->_data);
+    }
+
+    function valid() {
+        return ( $this->current() !== false );
+    }
+
+    /**
+     * @param offset
+     */
+    public function offsetExists ($offset) {
+        return isset($this->_data[$offset] );
+    }
+
+    /**
+     * @param offset
+     */
+    public function offsetGet ($offset) {
+        if(!isset( $this->_data[$offset])){
+            return null;
+        }
+        return $this->_data[$offset];
+    }
+
+    /**
+     * @param offset
+     * @param value
+     */
+    public function offsetSet ($offset, $value) {
+        $this->_data[$offset] = $value;
+    }
+
+    /**
+     * @param offset
+     */
+    public function offsetUnset ($offset) {
+        if(isset($this->_data[$offset]))
+            unset($this->_data[$offset]);
+    }
 	
 }

@@ -141,5 +141,93 @@ class  FunctionsStack{
 		}
 		
 	}
+
+    /**
+     * 分析函数调用栈
+     * @param string $str
+     * @return FunctionsStack
+     */
+    function analyseFuncStack($str){
+        $func_stack = new FunctionsStack();
+
+        //首先将{}替换为array()的格式
+        $element = array();
+        $type = null;
+
+
+        for($i=0;$i<strlen($str);$i++){//挨个遍历函数调用表达式
+            $char =  $str[$i];
+            if( $char >= '0'  && $char <= '9' ){
+                $element[] = $char;
+                if($type == null)//如果以数字开头，且之前没有被定义类型，则为一个整型数字的开头
+                    $type = self::INTEGER;
+                continue;
+            }else if( ($char >= 'A' && $char <= 'Z') || ($char>='a' && $char <= 'z')){
+                $element[] = $char;
+                if($type == null)//如果是以字母开头，则有可能是函数名也有可能是字符串
+                    $type = self::PENDING;
+                else if($type == self::INTEGER)//如果整数中包含除数字外的字符，则为字符串
+                    $type = self::STRING;
+                continue;
+            }else if($char == '$'){
+                $element[] = $char;
+                if($type == null)//如果以$符开头，则为变量
+                    $type = self::VARIABLE;
+                else if($type == self::INTEGER)//如果整数中包含除数字外的字符，则为字符串
+                    $type = self::STRING;
+                continue;
+            }else if($char == ','){
+// 				$element[] = $char;
+                if(!empty($element)){//如果是逗号，且之前处于未决状态，则应该是一个字符串。类似array(abc,ccc)异或prev(abc,addd)
+                    if($type == self::PENDING)
+                        $type = self::STRING;
+                    else if($type == self::INTEGER)//如果整数中包含除数字外的字符，则为字符串
+                        $type = self::STRING;
+                    $func_stack->push( $type,implode('', $element) );
+                    $element = array();
+                    $type = null;
+                }
+                continue;
+            }else if($char == ':' || $char=='_' || $char=='.'){//如果碰到以下字符，直接入栈
+                $element[] = $char;
+                continue;
+            }else if( $char=='('){//如果碰到(，则当前type肯定为function
+                $type = self::FUNCTIONS;
+                if(!empty($element)){
+                    $func_stack->push( self::BRACKET, '(' );
+                    $func_stack->push($type ,implode('', $element) );
+                    $element = array();
+                    $type = null;
+                }
+            }else if($char == ')'){
+                if($type == self::PENDING){//如果碰到)，且之前处于未决状态，则应该是一个字符串。
+                    $type = self::STRING;
+                }
+                if(!empty($element)){//如果)之前的element不为空，把element都弹出入 function stack，再将括号入栈
+                    $func_stack->push($type ,implode('', $element) );
+                    $func_stack->push( self::BRACKET, ')' );
+                    $element = array();
+                    $type = null;
+                }else{
+                    $func_stack->push( self::BRACKET, ')' );
+                }
+            }
+
+            /* 			switch ($char){
+                            case '('://如果碰到(，则当前type肯定为function
+
+                                break;
+                            case ')':
+
+                                break;
+                        } */
+
+        }
+
+        /* foreach ($func_stack->get() as $k=>$v){
+                echo $v[0].':' . $v[1]."\n";
+            } */
+        return $func_stack;
+    }
 	
 }

@@ -96,7 +96,6 @@ class SiteController extends CController{
 				'host'=>$host,
 				'maxPoints'=>($chart->max_points>0) ? $chart->max_points : 5,
 		));
-		
 	}
 	
 	public function actionRealtime(){

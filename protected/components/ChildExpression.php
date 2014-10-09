@@ -36,6 +36,10 @@ class ChildExpression {
 		$this->_func_class = $function_class;
 	}	
 	
+	public function getPostFixExpression(){
+		return $this->_postfix_expression ;
+	}
+	
 	public function __toString(){
 		$str =  $this->_expression."\n";
 		foreach ($this->_postfix_expression as $v){
@@ -90,6 +94,7 @@ class ChildExpression {
 		
 		for($i=0;$i<strlen($str);$i++){//挨个遍历表达式
 			$char =  $str[$i];
+// 			echo "READ {$char}\n";
 			if( $char >= '0'  && $char <= '9' ){
 				$element[] = $char;
 				if($type == null)//如果以数字开头，且之前没有被定义类型，则为一个整型数字的开头
@@ -131,24 +136,31 @@ class ChildExpression {
 					
 				//如果当前运算符优先级高于栈顶运算符，将当前运算符入栈。
 				//否则，将运算符栈中的元素依次弹出，直到碰到栈顶运算符优先级低于当前运算符
+// 				print_r($stack1);
 				if( $this->operatorCompare($char,end($stack1)) > 0 ){
+// 				    echo "PUSH {$char}\n";
 					$stack1[] = $char;
 				}else{
+// 				    echo "COMPARE {$char}\n";
 					while(count($stack1) > 0){
 						$operator = end($stack1);
 						if( $this->operatorCompare($char,$operator ) > 0 ){
+// 						    echo "PUSH {$char}\n";
 							$stack1[] = $char;
 							break;
 						}else{
+// 						    echo "POP ".end($stack1)."\n";
 							$stack2[] = new Operator(Operator::OPERATOR, array_pop($stack1));
 						}
 					}
 				}
+// 				print_r($stack1);
 			}else if( $char == '(' ){//如果是左括号，并且不是在函数中，则把(入到stack1栈
 				if($type==Operator::FUNCTIONS){
 					$element[]= $char;
 					$func_brackets ++;
 				}else{
+// 				    echo "PUSH {$char}\n";
 					$stack1[] = $char;
 				
 					if( !empty($element) ){//如果elemnt不为空，入到stack2中
@@ -161,7 +173,8 @@ class ChildExpression {
 				}
 			}else if( $char == ')' || $char == '}'){
 				if($type==Operator::FUNCTIONS){//如果当前type为function
-				
+				    
+// 				    echo "END FUNCTION {$char}\n";
 					$func_brackets --;
 					if($func_brackets == 0){//如果左右括号个数正好是偶数
 						$element[]= $char;
@@ -177,12 +190,12 @@ class ChildExpression {
 				
 				
 				}else{//非function，把当前element入栈并清空
-				
+// 				    echo "NOT FUNCTION {$char}\n";
 					$variable = implode('', $element);
 					$stack2[] = new Operator($type, $variable);
 					$element = array();
 					$type = null;
-				
+// 				    print_r($stack1);
 					while(count($stack1) > 0){
 						$operator = array_pop($stack1);
 						if( $operator == '(' ){
@@ -200,15 +213,9 @@ class ChildExpression {
 				$stack2[] = new Operator($type, implode('', $element));
 		}
 		
-		while(count($stack1) > 1){//将运算符栈中的元素依次送到stack1中
-// 			$operator = array_pop($stack1);
+		while(count($stack1) > 1){//将运算符栈中的元素依次送到stack2中
 			$stack2[] = new Operator('operator', array_pop($stack1));;
 		}
-		
-/* 		foreach ($stack2 as $v){
-			echo $v."\n";
-		} */
-		
 		return $stack2;
 		
 	}
@@ -218,7 +225,10 @@ class ChildExpression {
 	 * @return number
 	 */
 	private function operatorCompare($operator1,$operator2){
-		$operator = array('*'=>2,'/'=>2,'+'=>1,'-'=>1,'#'=>0);
+		$operator = array('('=>0,'*'=>2,'/'=>2,'+'=>1,'-'=>1,'#'=>-1);
+		/* if( !isset($operator[$operator1]) || !isset($operator[$operator2])){
+		    echo $operator1.'|'.$operator2.'|';
+		} */
 		return $operator[$operator1] - $operator[$operator2];
 	}
 	
@@ -255,12 +265,8 @@ class ChildExpression {
 				case Operator::INTEGER:
 				case Operator::VARIABLE:
 				case Operator::STRING:
-					if ( $type == 'data' ){
-						$value= call_user_func_array(array($operator,'getValue'), $data);
-					} else{
-						$value  = 0;
-					}
-				
+				    $value= call_user_func_array(array($operator,'getValue'), $data);
+
 					array_push($stack2,  $value);
 					break;
 				default:
@@ -285,8 +291,5 @@ class ChildExpression {
 	 */
 	public function calc($rule_data,$key){
 		return $this->_calc('data',array($rule_data,$key,$this->_func_class));
-	}
-	
-	public function calc_alarm($username){
 	}
 }

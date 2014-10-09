@@ -35,11 +35,11 @@ class alert_deploy extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('id,alert_name', 'required'),
-			array('alert_name', 'safe'),
+			array('alert_name', 'required'),
+			array('alert_name,rule,mail_receiver,message_receiver', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id,alert_name', 'safe', 'on'=>'search'),
+			array('id,alert_name,rule,mail_receiver,message_receiver', 'safe', 'on'=>'search'),
 		);
 	}
 

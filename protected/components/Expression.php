@@ -77,8 +77,10 @@ class Expression {
 			case 'in':
 				$this->result = in_array($left_value, $right_value);
 				break;
+            case 'not in':
+                $this->result = !in_array($left_value, $right_value);
+                break;
 		}
-		
 		return $this->result ;
 		
 	}	

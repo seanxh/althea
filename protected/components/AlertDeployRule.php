@@ -7,10 +7,13 @@ class  AlertDeployRule{
 	
 	
 	function check($alert_deploy_rule){
+		//week,1|hour,2
 		if( strpos($alert_deploy_rule, '|') !== false) {
 			if( strpos($alert_deploy_rule, '&') !== false ) return false;
 			return $this->check_or($alert_deploy_rule);
 		}
+		
+		//week,1&hour,2
 		if( strpos($alert_deploy_rule, '&') !== false){
 			if( strpos($alert_deploy_rule, '|') !== false ) return false;
 			return $this->check_and($alert_deploy_rule);

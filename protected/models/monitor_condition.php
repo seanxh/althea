@@ -76,4 +76,40 @@ class monitor_condition extends CActiveRecord
 		);
 	}
 
+    public static function renew($rule_id,$attribute_arr){
+        monitor_condition::model()->deleteAll('rule_id ='.$rule_id);
+
+        if( empty($attribute_arr) ){
+            return true;
+        }
+        $aInsertKey = array (
+            'rule_id',
+            'comparison_operator',
+            'left_expression',
+            'right_expression',
+            'serial_num'
+        );
+
+        $sInsertSqlKey = '`' . str_replace ( ',', '`,`', implode ( ',', $aInsertKey ) ) . '`';
+        //方便以后修改字段扩展
+        $aInsertKeyMap = array ();
+        $aInsertDefaultMap = array(
+        );
+
+        $sInsertSql = "INSERT INTO monitor_condition  ({$sInsertSqlKey}) VALUES ";
+
+        $aValues = array ();
+        foreach ( $attribute_arr as $conditon ) {
+            $aInsert = array ();
+            foreach ( $aInsertKey as $key ) {
+                $aInsert [] = is_string ( $conditon [$key] ) ? "'{$conditon[$key]}'" : $conditon [$key];
+            }
+            $sInsert = '(' . implode ( ',', $aInsert ) . ')';
+            $aValues [] = $sInsert;
+        }
+
+        $sInsertSql .= implode ( ',', $aValues );
+        return Yii::app ()->db->createCommand ( $sInsertSql )->execute ();
+    }
+
 }// end class

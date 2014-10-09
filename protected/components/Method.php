@@ -83,11 +83,11 @@ class Method {
 					}
 			
 					if( strstr($arr_key, '$') === 0 ){
-						$arr_key = $this->_getVal($arr_key, $rule_data, $key);
+						$arr_key = $this->_getVal($arr_key, 0);
 					}
 			
 					if( strstr($arr_val, '$') === 0 ){
-						$arr_val = $this->_getVal($arr_val, $rule_data, $key);
+						$arr_val = $this->_getVal($arr_val, 0);
 					}
 					if( $arr_key === 0) {
 						array_push($return_arr, $val);

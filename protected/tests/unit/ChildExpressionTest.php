@@ -74,4 +74,20 @@ class ChildExpressionTest extends CTestCase {
         );
         $this->assertEquals ( $expected_postix_expression, $postix_expression );
     }
+
+    /**
+     * 比较复杂的中辍转后缀
+     */
+    public function testComplexPostfix2(){
+        $expression = new ChildExpression ( '1*2+hour(prev($abc,test),test)' );
+        $postix_expression = $expression->getPostFixExpression ();
+        $expected_postix_expression = array (
+            new Operator ( Operator::INTEGER, '1' ),
+            new Operator ( Operator::INTEGER, '2' ),
+            new Operator ( Operator::OPERATOR, '*'),
+            new Operator ( Operator::FUNCTIONS, 'hour(prev($abc,test),test)' ),
+            new Operator ( Operator::OPERATOR, '+'),
+        );
+        $this->assertEquals ( $expected_postix_expression, $postix_expression );
+    }
 }

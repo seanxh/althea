@@ -1,7 +1,7 @@
 <?php
 /**
  * 监控策略数据源
- * @author xuhao05
+ * @author  Xuhao05(seanxh) 2014-6-7 上午12:25:04
  */
 class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	
@@ -40,8 +40,6 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	public $username;
 	public $password;
 	
-	public $charset;
-	
 	/**
 	 * 
 	 * @param string $dsn
@@ -52,32 +50,51 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	 * @param monitor_rule $rule
 	 * @param int $cycle_timestamp
 	 */
-	public function __construct($dsn,$username,$password,$charset,$log_config,$rule,$cycle_timestamp=0){
+	public function __construct($dsn,$username,$password,$log_config,$rule){
 		$this->dsn = $dsn;
 		$this->username = $username;
 		$this->password = $password;
 		
 		parent::__construct($this->dsn,$this->username,$this->password);
-		
- 		$this->charset=$charset;
+        $this->setAttribute(PDO::ATTR_TIMEOUT,3);
 		$this->active=true;
-		
-		$this->current_cycle_timestamp = $cycle_timestamp;
-		
+
 		$this->setLog($log_config);
 		$this->setRule($rule);
 	}
 	
-	
+	/**
+	 * @todo 获取表名
+	 *  使用示例:
+	 * <code>
+	 * $rule_data->getTable()
+	 * </code>
+	 * 
+	 *  返回结果:
+	 * <code>
+	 * mc_status
+	 * </code>
+	 */
 	public function getTable(){
 		return $this->_table;
 	}
 	
 	/**
+	 * @todo 设置监控数据所对应的Log表
 	 * @param log_config $log_config
+	 * 
+	 *  使用示例:
+	 * <code>
+	 * $rule_data->setLog( log_config::model()->findByPk(1) ) 
+	 * </code>
 	 */
 	public function setLog($log_config){
+        if( !$log_config ){
+            return;
+        }
 		$this->log_config = $log_config;
+        //如果是指定周期的日志，则计算周期
+        $this->current_cycle_timestamp =  ($log_config->log_type) ? time() :  intval(Yii::app()->params['CURRENT_TIME']/$log_config->log_cycle)*$log_config->log_cycle;;
 		$this->schema =  $this->getSchema()->getTable($log_config->table_name);
 		
 		$this->_table = $this->parseCondition( $log_config->table_name );
@@ -99,7 +116,13 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	}
 	
 	/**
+	 * @todo 设置监控策略
 	 * @param monitor_rule $rule
+	 * 
+	 *  使用示例:
+	 * <code>
+	 * $rule_data->setRule( monitor_rule::model()->findByPk(1) );
+	 * </code>
 	 */
 	public function setRule($rule){
 		$this->rule = $rule;
@@ -107,6 +130,15 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 		$this->condition_logic_operator =  empty($rule->condition_logic_operator) ? '1' : $rule->condition_logic_operator; 
 	}
 
+	/**
+	 * @todo 分析监控策略对应的查询SQL。并从SQL中分析出where条件,表别名,QueryGroup列
+	 * @param string $sql
+	 * 
+	 *  使用示例:
+	 * <code>
+	 *  $rule_data->analyseSql( 'select * from TABLE where result=0 querygroup by api_id' );
+	 * </code>
+	 */
 	public function analyseSql($sql){
 		preg_match('/TABLE[ ]+(?:as |AS )?[ ]?([a-z0-9A-Z]+)/', $sql,$match);
 		if( !empty($match) && isset($match[1]))
@@ -250,9 +282,6 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 
 		
 		$sql = str_replace($this->_where, $where, $this->_sql);
-		
-//  		echo $sql."\n";
- 		
  		$reader = $this->createCommand($sql)->queryAll();
  		
  		$return_arr  = $reader;

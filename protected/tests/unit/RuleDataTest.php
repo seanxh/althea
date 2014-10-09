@@ -80,5 +80,74 @@ class RuleDataTest extends CTestCase{
 		$this->assertTrue( $condition->judgeRuleData( $logic_stack,$rule_data,0) );
 		$this->assertFalse( $condition->judgeRuleData( $logic_stack,$rule_data,1) );
 	}
+
+    public function testIn(){
+        $expressions = array(
+            1=> new  Expression('$test', 'array(200,300)', 'in' ),
+        );
+
+        $rule_data = array(
+            0=>array(0=>array('test'=>200,'ip'=>'2.2'),1=>array('test'=>300,'ip'=>'3.3'),2=>array('test'=>400,'ip'=>'3.3')),
+        );
+
+        $condition = new Condition($expressions,'1');
+
+        $alert_data_key = $condition->judge( $rule_data);
+
+        $excepted_alert_data_key = array(0=>1,1=>1);
+
+        $this->assertEquals ( $alert_data_key, $excepted_alert_data_key );
+    }
+
+    public function testNotIn(){
+        $expressions = array(
+            1=> new  Expression('$test', 'array(200,300)', 'not in' ),
+        );
+
+        $rule_data = array(
+            0=>array(0=>array('test'=>200,'ip'=>'2.2'),1=>array('test'=>300,'ip'=>'3.3'),2=>array('test'=>400,'ip'=>'3.3')),
+        );
+
+        $condition = new Condition($expressions,'1');
+
+        $alert_data_key = $condition->judge( $rule_data);
+
+        $excepted_alert_data_key = array(2=>1);
+
+        $this->assertEquals ( $alert_data_key, $excepted_alert_data_key );
+    }
+
+
+    public function testWhole(){
+        $expressions = array(
+            1=> new  Expression('$test', 'array(200,300)', 'in' ),
+        );
+        $rule_data = array(
+            0=>array(0=>array('test'=>200,'ip'=>'2.2'),1=>array('test'=>300,'ip'=>'3.3'),2=>array('test'=>400,'ip'=>'3.3')),
+        );
+        $condition = new Condition($expressions,'1');
+        $alert_data = $condition->judgeCondition( $rule_data);
+        $except_alert_data = array(
+            0=>array(0=>array('test'=>200,'ip'=>'2.2'),1=>array('test'=>300,'ip'=>'3.3')),
+        );
+        $this->assertEquals ( $alert_data, $except_alert_data );
+    }
+
+    public function testCount(){
+        $expressions = array(
+            1=> new  Expression('count()', '3', '==' ),
+        );
+        $rule_data = array(
+            0=>array(0=>array('test'=>200,'ip'=>'2.2'),1=>array('test'=>300,'ip'=>'3.3'),2=>array('test'=>400,'ip'=>'3.3')),
+        );
+        $condition = new Condition($expressions,'1');
+        $alert_data = $condition->judge( $rule_data);
+        $excepted_alert_data_key = array(0=>1,1=>1,2=>1);
+        $this->assertEquals ( $alert_data, $excepted_alert_data_key );
+
+        $alert_data = $condition->judgeCondition( $rule_data);
+        $excepted_alert_data_key = $rule_data;
+        $this->assertEquals ( $alert_data, $excepted_alert_data_key );
+    }
 	
 }

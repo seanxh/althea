@@ -1,8 +1,6 @@
 <?php
 class ConditionLogicOperator{
 	
-	protected $key;
-	
 	/**
 	 * @var RuleData
 	 */
@@ -22,16 +20,43 @@ class ConditionLogicOperator{
 	
 	public $logic_stack;
 	
-	function __construct($key,$rule_data,$expressions){
-		$this->key = $key;
-		
-		$this->rule_data = $rule_data;
+	/**
+	 *  使用示例:
+	 * <code>
+	 * $expressions = array(
+				1=> new  Expression('$test', '200', '==' ),
+				2=> new  Expression('$ip', '{2.2,3.3}', 'in' ),
+		);
+	 * $c = new ConditionLogicOperator( '1 or 2 ',$expressions);
+	 * </code>
+	 * 
+	 * @param string $condition_logic_operator 表达式逻辑运算式
+	 * @param 表达式 $expressions 
+	 */
+	function __construct($condition_logic_operator,$expressions){
 		
 		$this->expressions = $expressions;
 		
-		$this->logic_stack = $this->analyseConditionLogicOperator($this->rule_data->condition_logic_operator);
+		$this->logic_stack = $this->analyseConditionLogicOperator($condition_logic_operator);
 	}
 	
+	/**
+	 * @todo 分析出表达式中的调用栈
+	 *  使用示例:
+	 * <code>
+	 * $ConditionLogicOperator->analyseConditionLogicOperator('1 or 2');
+	 * </code>
+	 * 
+	 *  返回结果:
+	 * <code>
+	 * 成功返回:
+	 *
+	 * 失败返回:
+	 *
+	 * </code>
+	 * @param string $condition_logic_operator
+	 * @return multitype:multitype:string unknown  multitype:NULL string  multitype:string Ambigous <NULL, string>  multitype:string
+	 */
 	public function analyseConditionLogicOperator($condition_logic_operator){
 		
 		$type = null;
@@ -43,6 +68,7 @@ class ConditionLogicOperator{
 			$char =  $str[$i];
 			if( $char >= '0'  && $char <= '9' ){
 				
+				//如果上一个非数字算符已过，当前产生了数字( 像"(1 and 2)" 中的"(1"这种情况   )。
 				if($type !== null && $type != self::EXPRESSION_NUM ){
 					$stack[] = array($type,implode('', $ele));
 					$ele = array();

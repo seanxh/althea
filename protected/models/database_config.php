@@ -40,7 +40,7 @@ class database_config extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('type,dbname,host,port,user,passwd', 'required'),
+			array('type,dbname,host,port,user', 'required'),
 			array('type,dbname,host,port,user,passwd', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
