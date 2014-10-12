@@ -87,9 +87,11 @@ class ChartController extends BaseController {
             $max_points = Yii::app()->request->getParam('max_points',0);
 
 
-
-
             $data_type = Yii::app()->request->getParam('data_type',0);
+            $log_type = Yii::app()->request->getParam('log_type','');
+            $log_table_name = Yii::app()->request->getParam('log_table_name','');
+            $log_time_column = Yii::app()->request->getParam('log_time_column',0);
+            $log_cycle = Yii::app()->request->getParam('log_cycle',0);
             $database_id = Yii::app()->request->getParam('database_id',0);
             $select_sql = Yii::app()->request->getParam('select_sql','');
             $data_url = Yii::app()->request->getParam('data_url','');
@@ -105,6 +107,10 @@ class ChartController extends BaseController {
             $submit_data = array(
                 'name'=> $monitor_name,
                 'data_type'=> $data_type,
+                'log_type'=>$log_type,
+                'log_table_name'=>$log_table_name,
+                'log_time_column'=>$log_time_column,
+                'log_cycle'=>$log_cycle,
                 'database_id'=> $database_id,
                 'select_sql'=> $select_sql,
                 'data_url'=> $data_url,
@@ -133,6 +139,11 @@ class ChartController extends BaseController {
             }else{
                 $validator->length('select_sql',1,'','SQL不能为空！');
                 $validator->int('database_id',1,null,'数据库需为数字！');
+            }
+            if( $log_type == 1){
+                $validator->length('log_table_name',1,'','表名称不能为空！');
+                $validator->length('log_time_column',1,'','时间字段不能为空！');
+                $validator->int('log_cycle',1,null,'表周期必须为数字！');
             }
             $validator->length('title',1,'','标题不能为空！');
             if( empty($id) ){

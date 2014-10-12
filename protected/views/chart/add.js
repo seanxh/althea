@@ -144,6 +144,7 @@
         },
         afterRender : function (){
             Render.renderDataType();
+            Render.renderLogType();
         },
         renderDataType : function (){//根据选中的是htt还是mysql更新前端
             var value  = $("input[name='data_type']:checked").val();
@@ -155,8 +156,17 @@
             $('li.'+value).show();
             if( value == 'MySQL'){
                 $('li.http').hide();
+                Render.renderLogType();
             }else{
                 $('li.MySQL').hide();
+            }
+        },
+        renderLogType:function(){
+            var log_type = $("input[name='log_type']:checked").val();
+            if(log_type == 0){
+                $('li.log-cycle').hide();
+            }else{
+                $('li.log-cycle').show();
             }
         }
     }
@@ -166,6 +176,9 @@
             Render.init();
             $("input[name='data_type']").click(function(event){
                 Render.renderDataType();
+            });
+            $("input[name='log_type']").click(function(event){
+                Render.renderLogType();
             });
         }
     };

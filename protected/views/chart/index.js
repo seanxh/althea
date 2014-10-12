@@ -33,7 +33,8 @@
                     'edit' : {
                         'title':'操作',
                         'render':function(data, full){
-                            return '<a href="index.php?r=chart/add&id=' + full.id + '">编辑</a>  '+
+                            return '<a target="_blank" href="index.php?r=site/chart&id=' + full.id + '">查看</a>  '+
+                                    '<a href="index.php?r=chart/add&id=' + full.id + '">编辑</a> '+
                                     '<a href="index.php?r=chart/add&id=' + full.id + '">删除</a>';
                         }
                     }

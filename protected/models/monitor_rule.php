@@ -25,6 +25,10 @@
  * @property monitor_rule_join $rule_join
  */
 class monitor_rule extends CActiveRecord {
+
+    const DATA_TYPE_MYSQL = 0;
+    const DATA_TYPE_HTTP = 1;
+
     static $DATA_TYPE = array(
         0 => 'MySQL',
         1 => 'http',
@@ -34,6 +38,9 @@ class monitor_rule extends CActiveRecord {
         0 => '禁用',
         1 => '启用',
     );
+
+    const LOG_TYPE_NO_CYCLE  = 0;
+    const LOG_TYPE_CYCLE  = 1;
 
     const STATUS_FORBIDDEN = 0;
     const STATUS_NORMAL = 1;
@@ -151,6 +158,10 @@ class monitor_rule extends CActiveRecord {
             'cycle' => $arr['cycle'],
             'data_type' => $arr['data_type'],
             'database_id' => $arr['database_id'],
+            'log_type'=>$arr['log_type'],
+            'log_table_name'=>$arr['log_table_name'],
+            'log_time_column'=>$arr['log_time_column'],
+            'log_cycle'=>$arr['log_cycle'],
             'select_sql' => $arr['select_sql'],
             'data_url' => $arr['data_url'],
             'data_url_parameters' => $arr['data_url_parameters'],

@@ -20,6 +20,19 @@
  * @property log_config $log_config
  */
 class chart_config extends CActiveRecord {
+    const DATA_TYPE_MYSQL = 0;
+    const DATA_TYPE_HTTP = 1;
+
+
+    const LOG_TYPE_NO_CYCLE  = 0;
+    const LOG_TYPE_WITH_CYCLE  = 1;
+
+    static $DATA_TYPE = array(
+        0 => 'MySQL',
+        1 => 'http',
+    );
+
+
     const LINE = 0;
     const AREA = 1;
     const COLUMN = 2;
@@ -87,6 +100,7 @@ class chart_config extends CActiveRecord {
         // class name for the relations automatically generated below.
         return array(
             'log_config' => array(self::BELONGS_TO, 'log_config', 'log_id'),
+            'database'	=> array(self::BELONGS_TO, 'database_config', 'database_id'),
         );
     }
 

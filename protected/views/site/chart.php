@@ -13,7 +13,7 @@
 			$(function () {
 			        Althea.charts({
 				        'container' : $('#container'),
-				        'chart' : 2 ,
+				        'chart' : <?php echo $id;?>,
 			        });
 			});
 		</script>

@@ -58,6 +58,44 @@
             </li>
 
             <li class="form-group MySQL">
+                <label class="name col-sm-2 control-label" for="logType1">周期性数据表</label>
+                <div class="col-sm-10" id="log_type">
+                    <label class="radio-inline">
+                        <input type="radio" checked name="log_type" id="logType1" value="0"> 否
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio"  name="log_type" id="logType2" value="1"> 是
+                    </label>
+                    <span class="help-block">如果是数据是有周期性的，并且监控条件需要进行同比，环比等。可使用此选项。详见<a href="#">文档</a></span>
+                </div>
+            </li>
+            <li class="form-group log-cycle MySQL">
+                <label class="name col-sm-2 control-label" for="log_table_name">表名称</label>
+                <div class="col-sm-10">
+                        <input placeholder="周期性数据表名称" class="form-control" name="log_table_name" id="log_table_name" type="text"
+                               maxlength="45" value=""/>
+                </div>
+            </li>
+            <li class="form-group log-cycle MySQL">
+                <label class="name col-sm-2 control-label" for="log_time_column">时间字段名称</label>
+                <div class="col-sm-10">
+                        <input placeholder="周期性数据表时间字段名称，如ctime,add_time等" class="form-control" name="log_time_column" id="log_time_column" type="text"
+                                value=""/>
+                </div>
+            </li>
+            <li class="form-group log-cycle MySQL">
+                <label class="name col-sm-2 control-label" for="log_cycle">表周期</label>
+                <div class="col-sm-10">
+                    <div class="input-group">
+                        <input placeholder="不小于1的整数" class="form-control" name="log_cycle" id="log_cycle" type="text"
+                               maxlength="45" value=""/>
+                        <div class="input-group-addon" style="width:auto;">秒</div>
+                    </div>
+                </div>
+            </li>
+
+
+            <li class="form-group MySQL">
                 <label class="name col-sm-2 control-label" for="select_sql">查询条件</label>
                 <div class="col-sm-10">
                     <textarea placeholder="请输入应用描述信息" class="form-control" rows="2" cols="50" name="select_sql"

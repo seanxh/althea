@@ -77,7 +77,7 @@
 			_resizeIng:false,			
 			cfg:{
 				version:"0.0",
-				host :"http://ai-atm-ur-statistic01.ai01.baidu.com/monitor",
+				host :"http://localhost/Althea/index.php",
 			},
 			init:function(fn){
 				if(fn&&$.isFunction(fn)&&$.inArray(fn,Althea._initFn)==-1){
@@ -118,7 +118,7 @@
 				
 				var chart = cfg.chart;
 				
-				var url = Althea.cfg.host + "/?chart="+chart; 
+				var url = Althea.cfg.host + "?r=site/index&chart="+chart;
 				if( cfg.start_time )
 					url += "&stime="+ cfg.start_time;
 				if( cfg.end_time )

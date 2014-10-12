@@ -1,7 +1,7 @@
 <?php
 /**
  * 监控策略数据源
- * @author  Xuhao05(seanxh) 2014-6-7 上午12:25:04
+ * @author  (seanxh) 2014-6-7 上午12:25:04
  */
 class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	
@@ -9,7 +9,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	
 	public $schema ;
 	
-	public $log_config;
+//	public $log_config;
 	
 	public $rule;
 	
@@ -25,9 +25,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	
 	protected  $_data;
 
-	public  $condition_logic_operator;
-	
-	
+
 	protected  $_sql;
 	
 	protected  $_where;
@@ -50,7 +48,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	 * @param monitor_rule $rule
 	 * @param int $cycle_timestamp
 	 */
-	public function __construct($dsn,$username,$password,$log_config,$rule){
+	public function __construct($dsn,$username,$password,$rule,$cycle_timestamp=0){
 		$this->dsn = $dsn;
 		$this->username = $username;
 		$this->password = $password;
@@ -59,7 +57,8 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
         $this->setAttribute(PDO::ATTR_TIMEOUT,3);
 		$this->active=true;
 
-		$this->setLog($log_config);
+        $this->current_cycle_timestamp = $cycle_timestamp;
+		$this->setLog($rule);
 		$this->setRule($rule);
 	}
 	
@@ -88,27 +87,27 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	 * $rule_data->setLog( log_config::model()->findByPk(1) ) 
 	 * </code>
 	 */
-	public function setLog($log_config){
-        if( !$log_config ){
-            return;
-        }
-		$this->log_config = $log_config;
+	public function setLog($rule){
+
+//		$this->log_config = $log_config;
         //如果是指定周期的日志，则计算周期
-        $this->current_cycle_timestamp =  ($log_config->log_type) ? time() :  intval(Yii::app()->params['CURRENT_TIME']/$log_config->log_cycle)*$log_config->log_cycle;;
-		$this->schema =  $this->getSchema()->getTable($log_config->table_name);
-		
-		$this->_table = $this->parseCondition( $log_config->table_name );
-		
-		$this->_log_time_column = $log_config->time_column;
-		
-		$this->_log_time_column_type = $this->schema->columns[$log_config->time_column]->type;
-		
-		$this->_log_cycle = $log_config->log_cycle;
-		
-		$this->_log_type = $log_config->log_type;
-		
-		if( !$this->current_cycle_timestamp )
-			$this->current_cycle_timestamp = intval( time() / $this->_log_cycle )  * $this->_log_cycle;
+        $this->current_cycle_timestamp =  ($rule->log_type == monitor_rule::LOG_TYPE_NO_CYCLE) ? time() :  intval(Yii::app()->params['CURRENT_TIME']/$rule->log_cycle)*$rule->log_cycle;
+
+        if( $rule->log_table_name == monitor_rule::LOG_TYPE_CYCLE){
+            $this->_table = $this->parseCondition( $rule->table_name );
+            $this->schema =  $this->getSchema()->getTable($this->_table);
+
+            $this->_log_time_column = $rule->log_time_column;
+
+            $this->_log_time_column_type = $this->schema->columns[$rule->log_time_column]->type;
+
+            $this->_log_cycle = $rule->log_cycle;
+
+            $this->_log_type = $rule->log_type;
+
+            if( !$this->current_cycle_timestamp )
+                $this->current_cycle_timestamp = intval( time() / $this->_log_cycle )  * $this->_log_cycle;
+        }
 	}
 	
 	public function pp(){
@@ -127,7 +126,6 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	public function setRule($rule){
 		$this->rule = $rule;
 		$this->analyseSql($rule->select_sql);
-		$this->condition_logic_operator =  empty($rule->condition_logic_operator) ? '1' : $rule->condition_logic_operator; 
 	}
 
 	/**

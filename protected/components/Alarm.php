@@ -37,9 +37,9 @@ class Alarm {
 
             if (!empty($alert_deploy->rule)) {
                 if (!$this->alert_deploy_rule->check($alert_deploy->rule)) {
-                    $receivers_arr['mail'] = implode(',', $alert_deploy->mail_receiver);
-                    $receivers_arr['msg'] = implode(',', $alert_deploy->message_receiver);
-                    $receivers_arr['url'] = implode(',', $alert_deploy->url_receiver);
+                    $receivers_arr['mail'] = explode(',', $alert_deploy->mail_receiver);
+                    $receivers_arr['msg'] = explode(',', $alert_deploy->message_receiver);
+                    $receivers_arr['url'] = explode(',', $alert_deploy->url_receiver);
                 }
             }
 

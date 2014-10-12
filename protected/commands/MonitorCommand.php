@@ -30,11 +30,11 @@ class MonitorCommand extends CConsoleCommand {
             return;
         }
 
-        $log_config = NULL;
-        if ($rule->log_id != 0) {
-            //报警策略的日志配置
-            $log_config = $rule->log_config;
-        }
+//        $log_config = NULL;
+//        if ($rule->log_id != 0) {
+//            //报警策略的日志配置
+//            $log_config = $rule->log_config;
+//        }
 
         //日志的数据库配置
         $database = $rule->database;
@@ -45,7 +45,16 @@ class MonitorCommand extends CConsoleCommand {
         $log_dsn = $database->type . ':host=' . $database->host . ';port=' . $database->port . ';dbname=' . $database->dbname;
 
         //监控策略数据源
-        $rule_data = new RuleData($log_dsn, $database->user, $database->passwd, $log_config, $rule);
+
+        if( $rule->data_type == monitor_rule::DATA_TYPE_MYSQL){
+            $rule_data = new RuleData($log_dsn, $database->user, $database->passwd, $rule);
+        }else{
+            $params = $rule->data_url_parameters;
+            if( empty($params)){
+                $params = '[]';
+            }
+            $rule_data = new HttpRuleData($rule->data_url, json_decode($params,true), $rule);
+        }
 
         //监控策略条件表达式(一个监控策略有可能有多个表达式，多个表达式可能是逻辑“或”，“与”的关系
         $condition = $rule->condition;

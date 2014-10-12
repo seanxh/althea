@@ -165,6 +165,10 @@ class Condition {
     public function judge($rule_data){
         $condition_logic = new ConditionLogicOperator($this->condition_logic_operator,$this->expressions);
         $alert_data_key = array();//有异常的key值
+
+        if( empty($rule_data) ){//RETURN ASAP
+            return $alert_data_key;
+        }
         //取出第一个周期的所有数据，并依次比较判断
         foreach( $rule_data[0] as $key=>$value){
 
