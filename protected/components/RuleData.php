@@ -92,6 +92,7 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 //		$this->log_config = $log_config;
         //如果是指定周期的日志，则计算周期
         $this->current_cycle_timestamp =  ($rule->log_type == monitor_rule::LOG_TYPE_NO_CYCLE) ? time() :  intval(Yii::app()->params['CURRENT_TIME']/$rule->log_cycle)*$rule->log_cycle;
+        $this->_log_type = $rule->log_type;
 
         if( $rule->log_table_name == monitor_rule::LOG_TYPE_CYCLE){
             $this->_table = $this->parseCondition( $rule->table_name );
@@ -103,7 +104,6 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 
             $this->_log_cycle = $rule->log_cycle;
 
-            $this->_log_type = $rule->log_type;
 
             if( !$this->current_cycle_timestamp )
                 $this->current_cycle_timestamp = intval( time() / $this->_log_cycle )  * $this->_log_cycle;
@@ -113,6 +113,10 @@ class RuleData extends  CDbConnection implements ArrayAccess,Iterator,Countable{
 	public function pp(){
 		var_dump($this->_data);
 	}
+
+    public function getData(){
+        return $this->_data;
+    }
 	
 	/**
 	 * @todo 设置监控策略
@@ -265,21 +269,24 @@ $sql = str_replace('TABLE',$this->_table,$sql);
 	private function _get($index){
 		
 		$cycle_where = '';
-		
-		if ( $this->_log_type == log_config::WITHCYCLE  && $this->_table_alias === null)
+		if ( $this->_log_type == monitor_rule::LOG_TYPE_CYCLE  && $this->_table_alias === null){
 			$cycle_where = $this->_log_time_column.'>='.$this->calcCycle($index).' and '.$this->_log_time_column.'<'.$this->calcCycle($index-1);
-		else if($this->_log_type == log_config::WITHCYCLE  && $this->_table_alias !== null)
+        }else if($this->_log_type == monitor_rule::LOG_TYPE_CYCLE  && $this->_table_alias !== null){
 			$cycle_where = $this->_table_alias.'.'.$this->_log_time_column.'>='.$this->calcCycle($index).' and '.$this->_table_alias.'.'.$this->_log_time_column.'<'.$this->calcCycle($index-1);
-		else
+        }else{
 			$this->_where = rtrim($this->_where,'and ');
-		
+        }
+
 		$where = $this->_where. $cycle_where;
 		
 		//空SQL
-		if( trim($where) == 'where' )throw new Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
+		if( trim($where) == 'where' ){
+//            throw new Exception('the rule '.$this->rule->id.' was monitor as a empty condition.Please check');
+		    $sql = str_replace($this->_where, '', $this->_sql);
+        }else{
+		    $sql = str_replace($this->_where, $where, $this->_sql);
+        }
 
-		
-		$sql = str_replace($this->_where, $where, $this->_sql);
  		$reader = $this->createCommand($sql)->queryAll();
  		
  		$return_arr  = $reader;

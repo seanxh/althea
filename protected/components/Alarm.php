@@ -48,7 +48,6 @@ class Alarm {
     }
 
     public function oneMail($alert_data) {
-        var_dump($alert_data);
         $receiver = $this->getAlertReceiver();
         $alert_key = $alert_data[0];
         $title = $this->getData($this->rule->alert_title, $alert_data, key($alert_key));

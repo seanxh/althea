@@ -230,7 +230,7 @@
 
 </div>
 
-<div id="monitor_data"  style="display: none;" value='<?php echo htmlspecialchars(json_encode($data));?>'></div>
+<div id="monitor_data"  style="display: none;"><?php echo htmlspecialchars(json_encode($data));?></div>
 <script>
     <?php include_once(dirname(__FILE__) . '/add.js'); ?>
 </script>

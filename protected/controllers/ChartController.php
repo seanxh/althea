@@ -79,7 +79,8 @@ class ChartController extends BaseController {
         try{
             $id = Yii::app()->request->getParam('id',0);
             $monitor_name = Yii::app()->request->getParam('name','');
-            $expression = Yii::app()->request->getParam('expression','');
+            $y_expression = Yii::app()->request->getParam('y_expression','');
+            $x_expression = Yii::app()->request->getParam('x_expression','');
             $theme = Yii::app()->request->getParam('theme',0);
             $type = Yii::app()->request->getParam('type',0);
             $realtime = Yii::app()->request->getParam('realtime',0);
@@ -118,7 +119,8 @@ class ChartController extends BaseController {
                 'parameter'=> $parameter,
                 'title'=> $title,
                 'status'=>$status,
-                'expression'=>$expression,
+                'y_expression'=>$y_expression,
+                'x_expression'=>$x_expression,
                 'sub_title'=> $sub_title,
                 'y_title'=>$y_title,
                 'theme'=>$theme,
@@ -130,6 +132,8 @@ class ChartController extends BaseController {
 
             $validator = new RequestValidator($submit_data);
             $validator->length('name',1,'','名称不能为空！');
+            $validator->length('y_expression',1,'','Y轴表达式不能为空！');
+            $validator->length('x_expression',1,'','X轴表达式名称不能为空！');
             if( !empty($cycle) ){
                 $validator->int('cycle',1,null,'周期必须为数字！');
             }

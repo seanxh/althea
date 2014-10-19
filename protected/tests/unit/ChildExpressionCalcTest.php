@@ -72,4 +72,12 @@ class ChildExpressionCalcTest extends CTestCase {
         $this->assertEquals('3.3', $expression->calc($rule_data, 1));
     }
 
+    public function testSimple3() {
+        $rule_data = array(
+            0 => array(0 => array('test' => 200, 'ip' => '2.2'), 1 => array('test' => 300, 'ip' => '3.3')),
+        );
+
+        $expression = new ChildExpression('test');
+        $this->assertEquals('test', $expression->calc($rule_data, 0));
+    }
 }

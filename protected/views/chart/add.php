@@ -114,9 +114,18 @@
             </li>
 
             <li class="form-group">
-                <label class="name col-sm-2 control-label" for="expression">表达式</label>
+                <label class="name col-sm-2 control-label" for="y_expression">Y轴表达式</label>
                 <div class="col-sm-10">
-                    <input placeholder="运算表达式" class="form-control" name="expression" id="expression" type="text"
+                    <input placeholder="运算表达式" class="form-control" name="y_expression" id="y_expression" type="text"
+                           maxlength="45" value=""/>
+                    <span class="help-block">判定表达式用于对数据源进行过滤报警，语法参考<a href="#">文档</a></span>
+                </div>
+            </li>
+
+            <li class="form-group">
+                <label class="name col-sm-2 control-label" for="x_expression">X轴表达式</label>
+                <div class="col-sm-10">
+                    <input placeholder="运算表达式" class="form-control" name="x_expression" id="x_expression" type="text"
                            maxlength="45" value=""/>
                     <span class="help-block">判定表达式用于对数据源进行过滤报警，语法参考<a href="#">文档</a></span>
                 </div>
@@ -192,7 +201,7 @@
 
             <li class="form-group">
                 <label class="name col-sm-2 control-label" for="realtime1">是否实时变换</label>
-                <div class="col-sm-10" id="status">
+                <div class="col-sm-10" id="realtime">
                     <label class="radio-inline">
                         <input type="radio" checked name="realtime" id="realtime1" value="1"> 是
                     </label>

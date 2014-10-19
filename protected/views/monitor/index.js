@@ -10,7 +10,16 @@
                     'id' : 'ID',
                     'monitor_name' : '名称',
                     'cycle' : '周期(秒)',
-                    'status' : '状态',
+                    'status' :  {
+                        'title':'状态',
+                        'render':function(data,full){
+                            if( data == 0){
+                                return '禁用';
+                            }else{
+                                return '启用';
+                            }
+                        }
+                    },
                     'alert_title': '报警标题',
                     'edit' : {
                         'title':'操作',

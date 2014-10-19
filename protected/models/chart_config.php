@@ -23,6 +23,8 @@ class chart_config extends CActiveRecord {
     const DATA_TYPE_MYSQL = 0;
     const DATA_TYPE_HTTP = 1;
 
+    const STATUS_NORMAL = 1;
+    const STATUS_FORBIDDEN = 0;
 
     const LOG_TYPE_NO_CYCLE  = 0;
     const LOG_TYPE_WITH_CYCLE  = 1;
@@ -84,7 +86,7 @@ class chart_config extends CActiveRecord {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
-            array('name,select_sql,title,expression,status', 'required'),
+            array('name,select_sql,title,y_expression,x_expression,status', 'required'),
             array('log_id,name,select_sql,title,expression,cycle,status', 'safe'),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
@@ -117,7 +119,8 @@ class chart_config extends CActiveRecord {
             'select_sql' => '指定查询SQL',
             'type' => '图表类型',
             'realtime' => '是否实时变化',
-            'expression' => 'Y轴计算表达式',
+            'y_expression' => 'Y轴计算表达式',
+            'x_expression' => 'X轴计算表达式',
             'title' => '图表标题',
             'subtitle' => '副标题',
             'max_points' => '动态图最多点数',

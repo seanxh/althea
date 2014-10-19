@@ -148,7 +148,7 @@
             })
         },
         renderData : function (){
-            var plain_data = $('#monitor_data').attr('value')
+            var plain_data = $('#monitor_data').html()
             console.log('test')
             console.log(plain_data)
             var data = eval('('+plain_data+')');

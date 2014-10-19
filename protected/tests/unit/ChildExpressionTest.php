@@ -21,6 +21,15 @@ class ChildExpressionTest extends CTestCase {
         );
         $this->assertEquals ( $expected_postix_expression, $postix_expression );
     }
+
+    public function testString(){
+        $expression = new ChildExpression ( 'test' );
+        $postix_expression = $expression->getPostFixExpression ();
+        $expected_postix_expression = array (
+            new Operator ( Operator::STRING, 'test' ),
+        );
+        $this->assertEquals ( $expected_postix_expression, $postix_expression );
+    }
     
     /**
      * 带有函数的表达式，后缀转换验证

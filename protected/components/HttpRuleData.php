@@ -64,6 +64,10 @@ class HttpRuleData implements ArrayAccess,Iterator,Countable{
         var_dump($this->_data);
     }
 
+    public function getData(){
+        return $this->_data;
+    }
+
     function analyseParams($params){
         foreach($params as $key=>$value){
                 preg_match_all('/\[([^\[\]]+)\]/',$value,$expressions);
